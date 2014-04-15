@@ -6,7 +6,7 @@ import com.jason.wechat.AbstractTestBase;
 
 
 
-public class MessageBytesTests extends AbstractTestBase {
+public class MessageBytesTest extends AbstractTestBase {
 
 	@Test
 	public void testBytes() throws Exception {

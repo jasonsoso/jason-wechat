@@ -10,7 +10,7 @@ import com.jason.wechat.infrastruture.util.MessageUtil;
 
 
 
-public class RespTextMessageTests extends AbstractTestBase {
+public class RespTextMessageTest extends AbstractTestBase {
 
 	@Test
 	public void testSendGet() throws Exception {

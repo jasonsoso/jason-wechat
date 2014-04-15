@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jason.wechat.AbstractTestBase;
 
-public class ChatServiceTests extends AbstractTestBase {
+public class ChatServiceTest extends AbstractTestBase {
 	
 	@Autowired
 	private ChatService chatService;

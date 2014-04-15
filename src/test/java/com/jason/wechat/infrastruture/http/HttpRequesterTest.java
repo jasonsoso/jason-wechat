@@ -10,7 +10,7 @@ import com.jason.wechat.AbstractTestBase;
 
 
 
-public class HttpRequesterTests extends AbstractTestBase {
+public class HttpRequesterTest extends AbstractTestBase {
 
 	@Test
 	public void testSendGet() throws Exception {

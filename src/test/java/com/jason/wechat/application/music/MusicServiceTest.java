@@ -8,7 +8,7 @@ import com.jason.wechat.domain.message.resp.model.Music;
 
 
 
-public class MusicServiceTests extends AbstractTestBase {
+public class MusicServiceTest extends AbstractTestBase {
 
 	@Autowired
 	private MusicService musicService;

@@ -7,8 +7,7 @@
 <hibernate-configuration>
 
   <session-factory>
-    <!--  <mapping resource="META-INF/hibernate/Article.hbm.xml" />
-    -->
+
   </session-factory>
 
 </hibernate-configuration>
