@@ -1,4 +1,2 @@
-jason-wechat
-============
-
-杰森机器人
+## Introduction ##
+Jason wechat  --- 杰森机器人

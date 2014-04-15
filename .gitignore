@@ -1,0 +1,11 @@
+.classpath
+.project
+.settings/
+.springBeans
+target/
+Known Hosts/
+.svn/
+classes/
+lib/
+.DS_Store
+.log

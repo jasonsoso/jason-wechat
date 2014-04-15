@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+
+	<!-- 
+	name：cache的名字，用例识别不同的cache，必须唯一,
+	maxElementsInMemory：为缓存对象的最大数目, 
+	eternal：设置是否永远不过期,
+	timeToIdleSeconds：对象处于空闲状态的最多秒数,默认值为0,值为0意味着元素可以闲置至无限长时间
+	timeToLiveSeconds：对象处于缓存状态的最多秒数,其他与timeToIdleSeconds类似
+	overflowToDisk: 设定是否在内存填满的时候把数据转到磁盘上,
+	 -->
+
+	<diskStore path="java.io.tmpdir/hibernate" />
+
+	<defaultCache 
+		maxElementsInMemory="10000" 
+		eternal="false"
+		timeToIdleSeconds="600" 
+		timeToLiveSeconds="1200" 
+		overflowToDisk="true" />
+
+	<cache name="org.hibernate.cache.UpdateTimestampsCache"
+		maxElementsInMemory="5000" 
+		eternal="true" 
+		overflowToDisk="true" />
+		
+	<cache name="org.hibernate.cache.StandardQueryCache"
+		maxElementsInMemory="1000" 
+		eternal="false" 
+		timeToLiveSeconds="600"
+		overflowToDisk="true" />
+		
+</ehcache>
