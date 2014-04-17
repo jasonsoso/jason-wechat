@@ -1,6 +1,7 @@
 package com.jason.wechat.interfaces.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.jason.framework.util.ExceptionUtils;
 import com.jason.framework.web.support.ControllerSupport;
+import com.jason.wechat.application.article.ArticleService;
 import com.jason.wechat.application.chat.ChatService;
 import com.jason.wechat.application.message.constant.MessageType;
 import com.jason.wechat.application.message.handle.ReqMessageHandler;
@@ -28,7 +30,9 @@ import com.jason.wechat.domain.message.req.ReqTextMessage;
 import com.jason.wechat.domain.message.req.ReqVideoMessage;
 import com.jason.wechat.domain.message.req.ReqVoiceMessage;
 import com.jason.wechat.domain.message.resp.RespMusicMessage;
+import com.jason.wechat.domain.message.resp.RespNewsMessage;
 import com.jason.wechat.domain.message.resp.RespTextMessage;
+import com.jason.wechat.domain.message.resp.model.Article;
 import com.jason.wechat.domain.message.resp.model.Music;
 import com.jason.wechat.infrastruture.util.HttpUtils;
 import com.jason.wechat.infrastruture.util.MessageUtil;
@@ -52,6 +56,8 @@ public class WeChatController extends ControllerSupport {
 	@Autowired
 	private MusicService musicService ;
 	
+	@Autowired
+	private ArticleService articleService ;
     /**
      * get请求
      * 
@@ -192,6 +198,21 @@ public class WeChatController extends ControllerSupport {
 	    	
 			writeXmlResult(response, MessageUtil.textMessageToXml(text));
 			
+    	}else if(StringUtils.equalsIgnoreCase(content, "2")){
+    		super.getLogger().info("textMessage 2 -------------");
+    		
+    		List<Article> articles = articleService.queryArticle();
+    		
+    		RespNewsMessage newsMessage = new RespNewsMessage();
+    		newsMessage.setArticleCount(articles.size());
+    		newsMessage.setArticles(articles);
+    		newsMessage.setCreateTime(textMessage.getCreateTime());
+    		newsMessage.setFromUserName(textMessage.getToUserName());
+    		newsMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_NEWS.toString());
+    		newsMessage.setToUserName(textMessage.getFromUserName());
+    		
+			writeXmlResult(response, MessageUtil.newsMessageToXml(newsMessage));
+			
     	}else if(StringUtils.startsWith(content, "歌曲")){
     		super.getLogger().info("textMessage song -------------");
     		executeMusic(response, textMessage, content);
@@ -218,7 +239,8 @@ public class WeChatController extends ControllerSupport {
     private void executeMenu(HttpServletResponse response, ReqTextMessage message) {
     	StringBuffer buffer = new StringBuffer()
         	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
-        	.append("1  歌曲点播").append("\n\n")
+        	.append("1 歌曲点播").append("\n")
+        	.append("2 杰森轻博").append("\n\n")
         	.append("回复“?”显示此帮助菜单");
     	RespTextMessage text = new RespTextMessage();
     	text.setContent(buffer.toString());
