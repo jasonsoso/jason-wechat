@@ -23,7 +23,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public List<Article> queryArticle() {
-		String url = "http://localhost:8086/rss/article.rss";
+		String url = "http://qing.jasonsoso.com/rss/article.rss";
 		SyndFeedInput input = new SyndFeedInput();
 		SyndFeed feed = null;
 		try {
@@ -45,7 +45,7 @@ public class ArticleServiceImpl implements ArticleService {
 			article.setUrl(entry.getLink());
 			
 			//List只装10条数据
-			if(i < 10){
+			if(i < 5){
 				list.add(article);
 			}else{
 				break; //跳出循环
