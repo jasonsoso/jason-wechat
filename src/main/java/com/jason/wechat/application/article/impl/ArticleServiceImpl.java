@@ -44,7 +44,7 @@ public class ArticleServiceImpl implements ArticleService {
 			article.setTitle(entry.getTitle());
 			article.setUrl(entry.getLink());
 			
-			//List只装10条数据
+			//List只装5条数据
 			if(i < 5){
 				list.add(article);
 			}else{
