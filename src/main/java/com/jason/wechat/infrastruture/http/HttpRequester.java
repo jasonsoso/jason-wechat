@@ -3,6 +3,7 @@ package com.jason.wechat.infrastruture.http;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,10 +46,17 @@ public class HttpRequester {
 
     /**
      * GET请求
+     * @param url  路径
+     * @return HttpRespons
+     */
+    public static  HttpRespons sendGet(String url){
+        return sendGet(url, new HashMap<String, String>());
+     }
+    /**
+     * GET请求
      * @param url 路径
      * @param params 参数
      * @return HttpRespons
-     * @throws Exception
      */
     public static  HttpRespons sendGet(String url, Map<String, String> params){
        return sendGet(url, params, HttpConstants.DEFAULT_CHARSET);
@@ -59,7 +67,7 @@ public class HttpRequester {
      * @param url 路径
      * @param params 参数
      * @param charset 编码
-     * @return
+     * @return HttpRespons
      */
     public static  HttpRespons sendGet(String url, Map<String, String> params,String charset){
         return send(url, "GET", params,charset);
@@ -69,7 +77,6 @@ public class HttpRequester {
      * @param url 路径
      * @param params 参数
      * @return HttpRespons
-     * @throws Exception
      */
     public static  HttpRespons sendPost(String url, Map<String, String> params) {
         return sendPost(url, params, HttpConstants.DEFAULT_CHARSET);
@@ -79,11 +86,12 @@ public class HttpRequester {
      * @param url 路径
      * @param params 参数
      * @param charset 编码
-     * @return
+     * @return HttpRespons
      */
     public static  HttpRespons sendPost(String url, Map<String, String> params,String charset) {
         return send(url, "POST", params,charset);
     }
+    
 	public static HttpRespons send(String urlString, String method,
 			Map<String, String> parameters, String charset) {
 
