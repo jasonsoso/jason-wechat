@@ -34,7 +34,7 @@ public class TranslateServiceImpl implements TranslateService {
 			String content = httpRespons.getContent();
 			s = parseTranslate(content);
 		}else{
-			logger.debug("請求返回报错 不是200！而是"+statusCode);
+			logger.debug("请求返回报错 不是200！而是"+statusCode);
 		}
 		return s;
 	}
@@ -45,7 +45,7 @@ public class TranslateServiceImpl implements TranslateService {
 	 * @return String
 	 */
 	private static String parseTranslate(String json) {
-		String str = null;
+		String str = "暂时木有结果";
 		try {
             JsonNode rootNode = JsonMapper.readTree(json);// 读取Json
             
@@ -54,7 +54,6 @@ public class TranslateServiceImpl implements TranslateService {
             
             JsonNode trans_result = JsonMapper.path(rootNode, "trans_result");
             
-
             JsonNode result = trans_result.get(0);
             if(null != result){
             	String src = JsonMapper.asText(result, "src");

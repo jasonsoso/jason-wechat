@@ -300,9 +300,14 @@ public class WeChatController extends ControllerSupport {
         	executeTranslateMenu(response, message);
         }else{
         	String str = translateService.translate(keyWord);
-
+        	String returnStr = null;
+        	if(StringUtils.isBlank(str)){
+        		returnStr = "对不起，你输入的关键字翻译不了！";
+        	}else{
+        		returnStr = str;
+        	}
             RespTextMessage text = new RespTextMessage();
-	    	text.setContent(str);
+	    	text.setContent(returnStr);
 	    	text.setCreateTime(message.getCreateTime());
 	    	text.setFromUserName(message.getToUserName());
 	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
