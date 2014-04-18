@@ -14,7 +14,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
@@ -32,7 +34,8 @@ public class HttpRequester {
     /**
      * httpClient 4.2 客户端
      */
-    private static HttpClient httpClient = new DefaultHttpClient();
+    private static ClientConnectionManager connManager = new PoolingClientConnectionManager();
+    private static HttpClient httpClient = new DefaultHttpClient(connManager);
     
     static{
     	httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,5000);//连接时间
