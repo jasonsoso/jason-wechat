@@ -21,6 +21,7 @@ import com.jason.wechat.application.message.constant.MessageType;
 import com.jason.wechat.application.message.handle.ReqMessageHandler;
 import com.jason.wechat.application.music.MusicService;
 import com.jason.wechat.application.translate.TranslateService;
+import com.jason.wechat.application.weather.WeatherService;
 import com.jason.wechat.domain.message.Message;
 import com.jason.wechat.domain.message.req.ReqEventMessage;
 import com.jason.wechat.domain.message.req.ReqImageMessage;
@@ -34,8 +35,9 @@ import com.jason.wechat.domain.message.resp.RespNewsMessage;
 import com.jason.wechat.domain.message.resp.RespTextMessage;
 import com.jason.wechat.domain.message.resp.model.Article;
 import com.jason.wechat.domain.message.resp.model.Music;
+import com.jason.wechat.infrastruture.util.DateUtils;
 import com.jason.wechat.infrastruture.util.HttpUtils;
-import com.jason.wechat.infrastruture.util.MessageUtil;
+import com.jason.wechat.infrastruture.util.MessageUtils;
 import com.jason.wechat.infrastruture.verify.VerifyToken;
 
 /**
@@ -61,6 +63,9 @@ public class WeChatController extends ControllerSupport {
 	
 	@Autowired
 	private TranslateService translateService ;
+	
+	@Autowired
+	private WeatherService weatherService ;
     /**
      * get请求
      * 
@@ -161,12 +166,12 @@ public class WeChatController extends ControllerSupport {
 	    	//以上都不执行 ，则最后执行这里
             RespTextMessage text = new RespTextMessage();
 	    	text.setContent(respContent);
-	    	text.setCreateTime(message.getCreateTime());
+	    	text.setCreateTime(DateUtils.currentTime());
 	    	text.setFromUserName(message.getToUserName());
 	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
 	    	text.setToUserName(message.getFromUserName());
 	    	
-			writeXmlResult(response, MessageUtil.textMessageToXml(text));
+			writeXmlResult(response, MessageUtils.textMessageToXml(text));
 			
 			
 		} catch (Exception e) {
@@ -196,6 +201,10 @@ public class WeChatController extends ControllerSupport {
     		super.getLogger().info("textMessage 3 -------------");
     		executeTranslateMenu(response, textMessage);
 			
+    	}else if(StringUtils.equalsIgnoreCase(content, "4")){
+    		super.getLogger().info("textMessage 4 -------------");
+    		executeWeatherMenu(response, textMessage);
+			
     	}else if(StringUtils.startsWith(content, "歌曲")){
     		super.getLogger().info("textMessage song -------------");
     		executeMusic(response, textMessage, content);
@@ -203,6 +212,10 @@ public class WeChatController extends ControllerSupport {
     	}else if(StringUtils.startsWith(content, "翻译")){
     		super.getLogger().info("textMessage translate -------------");
     		executeTranslate(response, textMessage, content);
+    		
+    	}else if(StringUtils.startsWith(content, "天气")){
+    		super.getLogger().info("textMessage translate -------------");
+    		executeWeather(response, textMessage, content);
     		
     	}else {
     		super.getLogger().info("textMessage xiaojo -------------");
@@ -220,12 +233,12 @@ public class WeChatController extends ControllerSupport {
 		
 		RespTextMessage text = new RespTextMessage();
     	text.setContent(chatStr);
-    	text.setCreateTime(textMessage.getCreateTime());
+    	text.setCreateTime(DateUtils.currentTime());
     	text.setFromUserName(textMessage.getToUserName());
     	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
     	text.setToUserName(textMessage.getFromUserName());
     	
-		writeXmlResult(response, MessageUtil.textMessageToXml(text));
+		writeXmlResult(response, MessageUtils.textMessageToXml(text));
     }
     /**
      * 执行图文 回复
@@ -238,12 +251,12 @@ public class WeChatController extends ControllerSupport {
 		RespNewsMessage newsMessage = new RespNewsMessage();
 		newsMessage.setArticleCount(articles.size());
 		newsMessage.setArticles(articles);
-		newsMessage.setCreateTime(textMessage.getCreateTime());
+		newsMessage.setCreateTime(DateUtils.currentTime());
 		newsMessage.setFromUserName(textMessage.getToUserName());
 		newsMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_NEWS.toString());
 		newsMessage.setToUserName(textMessage.getFromUserName());
 		
-		writeXmlResult(response, MessageUtil.newsMessageToXml(newsMessage));
+		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
     }
     /**
      * 执行菜单 回复
@@ -255,16 +268,37 @@ public class WeChatController extends ControllerSupport {
         	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
         	.append("1 歌曲点播").append("\n")
         	.append("2 杰森轻博").append("\n")
-        	.append("3 在线翻译").append("\n\n")
+        	.append("3 在线翻译").append("\n")
+        	.append("4 天气预报").append("\n\n")
         	.append("回复“?”显示此帮助菜单");
     	RespTextMessage text = new RespTextMessage();
     	text.setContent(buffer.toString());
-    	text.setCreateTime(message.getCreateTime());
+    	text.setCreateTime(DateUtils.currentTime());
     	text.setFromUserName(message.getToUserName());
     	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
     	text.setToUserName(message.getFromUserName());
     	
-		writeXmlResult(response, MessageUtil.textMessageToXml(text));
+		writeXmlResult(response, MessageUtils.textMessageToXml(text));
+	}
+    /**
+     * 执行天气预报菜单 回复
+     * @param response
+     * @param message 请求文本消息类
+     */
+    private void executeWeatherMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("天气预报操作指南").append("\n\n")
+	    	.append("回复：天气+城市").append("\n")
+	    	.append("例如：天气北京").append("\n\n")
+	    	.append("回复“?”显示主菜单");
+    	RespTextMessage text = new RespTextMessage();
+    	text.setContent(buffer.toString());
+    	text.setCreateTime(DateUtils.currentTime());
+    	text.setFromUserName(message.getToUserName());
+    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
+    	text.setToUserName(message.getFromUserName());
+    	
+		writeXmlResult(response, MessageUtils.textMessageToXml(text));
 	}
     /**
      * 执行翻译菜单 回复
@@ -279,14 +313,44 @@ public class WeChatController extends ControllerSupport {
 	    	.append("回复“?”显示主菜单");
     	RespTextMessage text = new RespTextMessage();
     	text.setContent(buffer.toString());
-    	text.setCreateTime(message.getCreateTime());
+    	text.setCreateTime(DateUtils.currentTime());
     	text.setFromUserName(message.getToUserName());
     	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
     	text.setToUserName(message.getFromUserName());
     	
-		writeXmlResult(response, MessageUtil.textMessageToXml(text));
+		writeXmlResult(response, MessageUtils.textMessageToXml(text));
 	}
 
+    
+    /**
+     * 天气预报 回复
+     * @param response
+     * @param message
+     * @param content
+     */
+    private void executeWeather(HttpServletResponse response,ReqTextMessage message,String content){
+    	// 将歌曲2个字及歌曲后面的+、空格、-等特殊符号去掉  
+        String keyWord = content.replaceAll("^天气[\\+ ~!@#%^-_=]?", "");
+        if(StringUtils.isBlank(keyWord)){
+        	executeWeatherMenu(response, message);
+        }else{
+        	String str = weatherService.weather(keyWord);
+        	String returnStr = null;
+        	if(StringUtils.isBlank(str)){
+        		returnStr = "对不起，你输入的关键字查询不了！";
+        	}else{
+        		returnStr = str;
+        	}
+            RespTextMessage text = new RespTextMessage();
+	    	text.setContent(returnStr);
+	    	text.setCreateTime(DateUtils.currentTime());
+	    	text.setFromUserName(message.getToUserName());
+	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
+	    	text.setToUserName(message.getFromUserName());
+	    	
+			writeXmlResult(response, MessageUtils.textMessageToXml(text));
+        }
+    }
     /**
      * 在线翻译 回复
      * @param response
@@ -308,12 +372,12 @@ public class WeChatController extends ControllerSupport {
         	}
             RespTextMessage text = new RespTextMessage();
 	    	text.setContent(returnStr);
-	    	text.setCreateTime(message.getCreateTime());
+	    	text.setCreateTime(DateUtils.currentTime());
 	    	text.setFromUserName(message.getToUserName());
 	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
 	    	text.setToUserName(message.getFromUserName());
 	    	
-			writeXmlResult(response, MessageUtil.textMessageToXml(text));
+			writeXmlResult(response, MessageUtils.textMessageToXml(text));
         }
     }
     /**
@@ -331,12 +395,12 @@ public class WeChatController extends ControllerSupport {
 
 		RespTextMessage text = new RespTextMessage();
 		text.setContent(buffer.toString());
-		text.setCreateTime(message.getCreateTime());
+		text.setCreateTime(DateUtils.currentTime());
 		text.setFromUserName(message.getToUserName());
 		text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
 		text.setToUserName(message.getFromUserName());
 
-		writeXmlResult(response, MessageUtil.textMessageToXml(text));
+		writeXmlResult(response, MessageUtils.textMessageToXml(text));
 	}
 	/**
 	 * 执行音乐回复
@@ -356,22 +420,22 @@ public class WeChatController extends ControllerSupport {
             if (null == music) {  
                 RespTextMessage text = new RespTextMessage();
     	    	text.setContent("对不起，没有找到你想听的歌曲<" + keyWord + ">。");
-    	    	text.setCreateTime(message.getCreateTime());
+    	    	text.setCreateTime(DateUtils.currentTime());
     	    	text.setFromUserName(message.getToUserName());
     	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
     	    	text.setToUserName(message.getFromUserName());
     	    	
-    			writeXmlResult(response, MessageUtil.textMessageToXml(text));
+    			writeXmlResult(response, MessageUtils.textMessageToXml(text));
             } else {  
                 // 音乐消息  
             	RespMusicMessage musicMessage = new RespMusicMessage();  
                 musicMessage.setToUserName(message.getFromUserName());  
                 musicMessage.setFromUserName(message.getToUserName());  
-                musicMessage.setCreateTime(message.getCreateTime());  
+                musicMessage.setCreateTime(DateUtils.currentTime());  
                 musicMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_MUSIC.toString());  
                 musicMessage.setMusic(music);
                 
-                writeXmlResult(response, MessageUtil.musicMessageToXml(musicMessage));
+                writeXmlResult(response, MessageUtils.musicMessageToXml(musicMessage));
             }  
         }
     }

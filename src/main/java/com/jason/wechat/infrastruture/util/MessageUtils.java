@@ -19,7 +19,7 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
  * @author Jason
  * @data 2014-4-14 下午02:46:05
  */
-public class MessageUtil {
+public class MessageUtils {
 
     /**
      * 文本消息对象转换成xml

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.jason.framework.mapper.JsonMapper;
 import com.jason.framework.util.EncodeUtils;
-import com.jason.wechat.application.music.impl.BaiduMusicServiceImpl;
 import com.jason.wechat.application.translate.TranslateService;
 import com.jason.wechat.infrastruture.http.HttpRequester;
 import com.jason.wechat.infrastruture.http.HttpRespons;
@@ -17,7 +16,7 @@ import com.jason.wechat.infrastruture.http.HttpRespons;
 @Service
 public class TranslateServiceImpl implements TranslateService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(BaiduMusicServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TranslateServiceImpl.class);
 
 	@Override
 	public String translate(String q) {

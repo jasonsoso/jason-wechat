@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.jason.wechat.AbstractTestBase;
 import com.jason.wechat.application.message.constant.MessageType;
-import com.jason.wechat.infrastruture.util.MessageUtil;
+import com.jason.wechat.infrastruture.util.MessageUtils;
 
 
 
@@ -22,7 +22,7 @@ public class RespTextMessageTest extends AbstractTestBase {
     	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
     	text.setToUserName("touserName");
     	
-    	System.out.println(MessageUtil.textMessageToXml(text));
+    	System.out.println(MessageUtils.textMessageToXml(text));
     	
     	
 	}
