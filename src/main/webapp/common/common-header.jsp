@@ -4,4 +4,4 @@
 
 
 <!-- Fav and touch icons -->
-<link rel="shortcut icon" href="${ctx }/resources/bootstrap/ico/favicon.ico">
+<link rel="shortcut icon" href="${ctx }/resources/images/favicon.ico">
