@@ -17,5 +17,5 @@ public interface WeatherService {
 	 * 	港澳台天气情况多城市天气预报中间"|"分隔,location=116.305145,39.982368| 122.305145,36.982368|….
 	 * @return
 	 */
-	String weather(String location);
+	String queryWeather(String location);
 }

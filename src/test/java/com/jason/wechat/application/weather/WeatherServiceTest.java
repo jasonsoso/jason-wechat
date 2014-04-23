@@ -16,7 +16,11 @@ public class WeatherServiceTest extends AbstractTestBase {
 	@Test
 	public void testWeather() throws Exception {
 		
-		String str = weatherService.weather("拉aaa");
+		String str = weatherService.queryWeather("珠海");
 		System.out.println(str);
+		
+		String local= "116.305145,39.982368";
+		String str2 = weatherService.queryWeather(local);
+		System.out.println(str2);
 	}
 }

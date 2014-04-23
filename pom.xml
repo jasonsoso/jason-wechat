@@ -62,6 +62,13 @@
             <artifactId>xstream</artifactId>
             <version>1.4.7</version>
         </dependency>
+    
+        <!-- google java library -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0.1</version>
+        </dependency>
         
  		<!-- Servlet jsp jstl -->
 		<dependency>

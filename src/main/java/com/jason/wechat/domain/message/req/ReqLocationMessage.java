@@ -6,7 +6,7 @@ package com.jason.wechat.domain.message.req;
  * @data 2014-3-30 下午11:12:22
  */
 public class ReqLocationMessage extends ReqMessage{
-    /**  地理位置维度 */
+    /**  地理位置纬度 */
     private String Location_X;
     
     /** 地理位置经度 */

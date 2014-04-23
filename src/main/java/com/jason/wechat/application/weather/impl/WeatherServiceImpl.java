@@ -23,7 +23,7 @@ public class WeatherServiceImpl implements WeatherService {
 	private static final Logger logger = LoggerFactory.getLogger(WeatherServiceImpl.class);
 
 	@Override
-	public String weather(String location) {
+	public String queryWeather(String location) {
 		String url = "http://api.map.baidu.com/telematics/v3/weather?location={location}&output=json&ak={ak}";
 		String ak = "SfvEysQwx7V0V3kE60hl2x2G";
 		
