@@ -9,6 +9,6 @@ public class Constant {
     /**
      * token
      */
-    public final static String TOKEN = "yourtoken";
+    public final static String TOKEN = "jasonrobot";
 
 }

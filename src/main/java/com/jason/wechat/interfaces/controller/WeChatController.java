@@ -29,6 +29,7 @@ import com.jason.wechat.domain.message.req.ReqEventMessage;
 import com.jason.wechat.domain.message.req.ReqImageMessage;
 import com.jason.wechat.domain.message.req.ReqLinkMessage;
 import com.jason.wechat.domain.message.req.ReqLocationMessage;
+import com.jason.wechat.domain.message.req.ReqMessage;
 import com.jason.wechat.domain.message.req.ReqTextMessage;
 import com.jason.wechat.domain.message.req.ReqVideoMessage;
 import com.jason.wechat.domain.message.req.ReqVoiceMessage;
@@ -160,6 +161,8 @@ public class WeChatController extends ControllerSupport {
 	    		// 订阅
                 if (StringUtils.equalsIgnoreCase(MessageType.EVENT_TYPE_SUBSCRIBE.toString(), event)) {
                     respContent = "订阅事件";
+                    ReqEventMessage reqEventMessage = (ReqEventMessage) message;
+                    executeMenu(response, reqEventMessage);
                 }
                 // 取消订阅
                 else if (StringUtils.equalsIgnoreCase(MessageType.EVENT_TYPE_UNSUBSCRIBE.toString(), event)) {
@@ -299,7 +302,7 @@ public class WeChatController extends ControllerSupport {
      * @param response
      * @param message 请求文本消息类
      */
-    private void executeMenu(HttpServletResponse response, ReqTextMessage message) {
+    private void executeMenu(HttpServletResponse response, Message message) {
     	StringBuffer buffer = new StringBuffer()
         	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
         	.append("1 歌曲点播").append("\n")

@@ -23,7 +23,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public List<Article> queryArticle() {
-		String url = "http://qing.jasonsoso.com/rss/article.rss";
+		String url = "http://tanjianna.diandian.com/rss";
 		SyndFeedInput input = new SyndFeedInput();
 		SyndFeed feed = null;
 		try {
@@ -40,7 +40,7 @@ public class ArticleServiceImpl implements ArticleService {
 			SyndEntry entry = entries.get(i);
 			article = new Article();
 			article.setDescription(entry.getDescription().getValue());
-			article.setPicUrl("http://qing.jasonsoso.com/resources/bootstrap/ico/login.png");
+			article.setPicUrl("http://wx.jasonsoso.com/resources/images/login.png");
 			article.setTitle(entry.getTitle());
 			article.setUrl(entry.getLink());
 			
