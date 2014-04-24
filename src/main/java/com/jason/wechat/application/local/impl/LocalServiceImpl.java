@@ -56,7 +56,6 @@ public class LocalServiceImpl implements LocalService ,InitializingBean{
 		Location location = null;
 		try {
 			location = cahceBuilder.get(key);
-			logger.info("---get cahce ok! key:"+key+" val:"+location);
 		}catch(InvalidCacheLoadException e){
 			throw ExceptionUtils.toUnchecked(e);
 		} catch (ExecutionException e) {
@@ -72,7 +71,6 @@ public class LocalServiceImpl implements LocalService ,InitializingBean{
 	 */
 	private  void putLocation(String key,Location location) {
 		cahceBuilder.put(key, location);
-		logger.info("---put cahce ok! key:"+key+" val:"+location);
 	}
 	
 	
@@ -117,7 +115,7 @@ public class LocalServiceImpl implements LocalService ,InitializingBean{
 			String content = httpRespons.getContent();
 			list = parseLocal(content,lng,lat);
 		}else{
-			logger.debug("请求返回报错 不是200！而是"+statusCode);
+			logger.error("请求返回报错 不是200！而是"+statusCode);
 		}
 		//http://wx.jasonsoso.com/resources/images/sousuo.png
 		//如果不为null 则添加第一个
@@ -194,14 +192,12 @@ public class LocalServiceImpl implements LocalService ,InitializingBean{
                 	.append("&opt=2")
                 	.append("&dev=0");
                     
-                    
                     article.setUrl(gaoDe.toString());
                     
                     //List只装5条数据
         			if(i < 5){
         				logger.info("parseLocal.....name:"+name+" cityName"+cityName+" address:"+address+" distance:"+distance+" district:"+district+" type:"+type
                         		+" lng:"+lng+" lat:"+lat+" url:"+gaoDe.toString());
-        				
         				list.add(article);
         			}else{
         				break; //跳出循环
@@ -213,8 +209,5 @@ public class LocalServiceImpl implements LocalService ,InitializingBean{
 		}
 		return list;
 	}
-
-	
-	
 
 }

@@ -15,7 +15,7 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 /**
- * Message 响应 
+ * Message  响应xml 
  * @author Jason
  * @data 2014-4-14 下午02:46:05
  */

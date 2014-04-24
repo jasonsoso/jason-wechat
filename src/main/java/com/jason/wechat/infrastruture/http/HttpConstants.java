@@ -2,7 +2,7 @@ package com.jason.wechat.infrastruture.http;
 
 
 /**
- * HTTP 請求常量
+ * HTTP 请求常量
  * @author Jason
  * @data 2014-3-30 上午11:46:45
  */

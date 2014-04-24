@@ -7,6 +7,11 @@ import java.util.Date;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
+/**
+ * 时间帮助类
+ * @author Jason
+ * @data 2014-4-24 上午10:33:24
+ */
 public class DateUtils {
 	
 	 /**
@@ -50,7 +55,7 @@ public class DateUtils {
 	
 
 	/**
-	 * 
+	 * 根据字符串格式化相应的字符串
 	 * @param datestr 时间字符串
 	 * @param sourceformat 原格式
 	 * @param targetformat 目标格式
@@ -63,11 +68,17 @@ public class DateUtils {
 		return DateFormatUtils.format(date, targetformat);
 	}
 	
+	/**
+	 * 根据Date 格式化为字符串
+	 * @param date
+	 * @param targetformat
+	 * @return
+	 */
 	public static String formatDate2Str(Date date,String targetformat){
 		return DateFormatUtils.format(date, targetformat);
 	}
 	/**
-	 * 
+	 * 根据字符串格式为Date类型
 	 * @param datestr
 	 * @param sourceformat
 	 * @return
@@ -78,7 +89,6 @@ public class DateUtils {
 				new String[] { sourceformat });
 		return date;
 	}
-	 
 	
 	/**
 	 * 获取星期几

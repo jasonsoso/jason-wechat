@@ -1,6 +1,5 @@
 package com.jason.wechat.application.message.handle;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,8 @@ public abstract class ReqMessageHandler{
 	private final Logger logger = LoggerFactory.getLogger(ReqMessageHandler.class);
 
 	/**
-	 * @param xml xml
+	 * 根据字符串 组装成 Message对象
+	 * @param xml xml字符串
 	 * @return Message
 	 * @throws Exception
 	 */
@@ -41,10 +40,8 @@ public abstract class ReqMessageHandler{
         Map<String,Object> map = new HashMap<String, Object>();
 
         Document doucument = DocumentHelper.parseText(xml);
-
         // 得到xml根元素
         Element root =   doucument.getRootElement();
-
         // 得到根元素的所有子节点
         @SuppressWarnings("unchecked")
 		List<Element> elementList = root.elements();
@@ -52,7 +49,6 @@ public abstract class ReqMessageHandler{
         for (Element e : elementList) {
             map.put(e.getName(), e.getText());
             logger.info(e.getName()+":"+e.getText());
-            
         }
         MessageType messageType[] =  MessageType.values();
 
@@ -64,46 +60,7 @@ public abstract class ReqMessageHandler{
             }
         }
         return null;
-}
-    /**
-     * 从request中取得输入流
-     * 处理接收的输入流，返回一个Message对象
-     * @param inputStream
-     * @return
-     * @throws Exception
-     */
-    public  Message reqMessageHandle(InputStream inputStream)throws Exception{
-            Map<String,Object> map = new HashMap<String, Object>();
-            //读取输入流
-            SAXReader reader = new SAXReader();
-            Document doucument = reader.read(inputStream,"UTF-8");
-
-            // 得到xml根元素
-            Element root =   doucument.getRootElement();
-
-            // 得到根元素的所有子节点
-            @SuppressWarnings("unchecked")
-			List<Element> elementList = root.elements();
-            // 遍历所有子节点
-            for (Element e : elementList) {
-                map.put(e.getName(), e.getText());
-                logger.info(e.getName()+":"+e.getText());
-                
-            }
-            // 释放资源
-            inputStream.close();
-
-            MessageType messageType[] =  MessageType.values();
-
-            for(MessageType type : messageType){
-                if(type.toString().equals(map.get("MsgType"))){
-                	//反射机制
-                    Method method =  this.getClass().getMethod(map.get("MsgType")+"MessageHandle",Map.class);
-                    return (Message)method.invoke(this,map);
-                }
-            }
-            return null;
-    }
+	}
 
     /**
      * 处理文本消息

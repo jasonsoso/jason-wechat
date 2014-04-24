@@ -29,7 +29,6 @@ public class BaiduMusicServiceImpl implements MusicService {
 		//2. 发请求查询，并获取返回结果
 		HttpRespons httpRespons =  HttpRequester.sendGet(requestUrl, new HashMap<String, String>());
         String content = httpRespons.getContent();
-        logger.info("contentCharset:"+httpRespons.getContentCharset()+",content:"+content);
         //3. 从返回结果中解析出Music
 		Music music = parseMusic(content);
 		return music;
@@ -47,7 +46,6 @@ public class BaiduMusicServiceImpl implements MusicService {
             JsonNode rootNode = JsonMapper.readTree(json);// 读取Json
             
             JsonNode data = JsonMapper.path(rootNode, "data");
-            
             JsonNode songList = JsonMapper.path(data, "songList");
 
             JsonNode song = songList.get(0);

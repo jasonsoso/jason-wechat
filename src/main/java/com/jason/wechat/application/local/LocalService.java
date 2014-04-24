@@ -6,7 +6,8 @@ import com.jason.wechat.domain.message.resp.model.Article;
 
 
 
-/**周边检索
+/** 
+ * 附近搜索
  * @author Jason
  * @data 2014-4-22 下午04:16:27
  */
@@ -21,7 +22,7 @@ public interface LocalService {
 	List<Article> queryLocal(String userName,String lng,String lat);
 	
 	/**
-	 * 根据关键词 搜索 附近
+	 * 根据关键词 附近搜索 
 	 * @param q
 	 * @return
 	 */

@@ -1,12 +1,18 @@
 package com.jason.wechat.application.local;
 
+/**
+ * 位置
+ * @author Jason
+ * @data 2014-4-24 下午12:01:58
+ */
 public class Location {
 	
 	private String lng;	//经度
 	private String lat;	//纬度
 	
+	
+	
 	public Location(){
-		
 	}
 	public Location(String lng,String lat){
 		this.lng = lng;
@@ -33,6 +39,4 @@ public class Location {
 		.append("}");
 		return sb.toString();
 	}
-	
-	
 }

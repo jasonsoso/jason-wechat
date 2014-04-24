@@ -33,7 +33,7 @@ public class TranslateServiceImpl implements TranslateService {
 			String content = httpRespons.getContent();
 			s = parseTranslate(content);
 		}else{
-			logger.debug("请求返回报错 不是200！而是"+statusCode);
+			logger.error("请求返回报错 不是200！而是"+statusCode);
 		}
 		return s;
 	}

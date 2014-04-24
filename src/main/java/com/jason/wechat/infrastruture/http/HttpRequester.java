@@ -92,6 +92,14 @@ public class HttpRequester {
         return send(url, "POST", params,charset);
     }
     
+	/**
+	 * 具体发请求
+	 * @param urlString 路径
+	 * @param method 方法
+	 * @param parameters 参数
+	 * @param charset 编码
+	 * @return HttpRespons
+	 */
 	public static HttpRespons send(String urlString, String method,
 			Map<String, String> parameters, String charset) {
 
@@ -132,8 +140,7 @@ public class HttpRequester {
 				httpresponse = httpClient.execute(httpGet);
 				elapsed = System.currentTimeMillis() - startTime;
 
-				logger.info("-----------发送get请求-------------------");
-				logger.info("花费{}毫秒,发送get请求：{}", elapsed, httpGet.getURI().toString());
+				logger.info("---发送get请求,花费{}毫秒,发送get请求：{}", elapsed, httpGet.getURI().toString());
 				
 				httpRespons = new HttpRespons();
 				httpRespons.setUrl(httpGet.getURI().toString());
@@ -142,8 +149,7 @@ public class HttpRequester {
 				httpRespons.setElapsedTime(elapsed);
 				httpRespons.parseHttpresponse(httpresponse);//組裝httpRespons信息 提供返回
 				
-				logger.info("请求结果{}",httpRespons.toString());
-	            logger.info("--------------------------------------------------------------------");
+				logger.info("---发送get请求,请求结果{}",httpRespons.toString());
 	            
 			} catch (Exception e) {
 				logger.error(String.format("GET请求%s报错！", httpGet.getURI().toString()),e);
@@ -168,8 +174,7 @@ public class HttpRequester {
 				httpresponse = httpClient.execute(httpPost);
 				elapsed = System.currentTimeMillis() - startTime;
 
-				logger.info("------------发送post请求-------------------");
-				logger.info("花费{}毫秒,发送post请求{}", elapsed, httpPost.getURI().toString());
+				logger.info("---发送post请求，花费{}毫秒,发送post请求{}", elapsed, httpPost.getURI().toString());
 				
 				httpRespons = new HttpRespons();
 				httpRespons.setUrl(httpPost.getURI().toString());
@@ -178,8 +183,7 @@ public class HttpRequester {
 				httpRespons.setElapsedTime(elapsed);
 				httpRespons.parseHttpresponse(httpresponse);//組裝httpRespons信息 提供返回
 				
-				logger.info("请求结果{}",httpRespons.toString());
-	            logger.info("--------------------------------------------------------------------");
+				logger.info("---发送post请求，请求结果{}",httpRespons.toString());
 	            
 			} catch (Exception e) {
 				logger.error(String.format("Post请求%s报错！", httpPost.getURI().toString()), e);

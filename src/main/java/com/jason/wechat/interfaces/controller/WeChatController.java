@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.cache.CacheLoader.InvalidCacheLoadException;
+import com.jason.framework.util.Collections3;
 import com.jason.framework.util.ExceptionUtils;
 import com.jason.framework.web.support.ControllerSupport;
 import com.jason.wechat.application.article.ArticleService;
@@ -29,7 +30,6 @@ import com.jason.wechat.domain.message.req.ReqEventMessage;
 import com.jason.wechat.domain.message.req.ReqImageMessage;
 import com.jason.wechat.domain.message.req.ReqLinkMessage;
 import com.jason.wechat.domain.message.req.ReqLocationMessage;
-import com.jason.wechat.domain.message.req.ReqMessage;
 import com.jason.wechat.domain.message.req.ReqTextMessage;
 import com.jason.wechat.domain.message.req.ReqVideoMessage;
 import com.jason.wechat.domain.message.req.ReqVoiceMessage;
@@ -38,9 +38,9 @@ import com.jason.wechat.domain.message.resp.RespNewsMessage;
 import com.jason.wechat.domain.message.resp.RespTextMessage;
 import com.jason.wechat.domain.message.resp.model.Article;
 import com.jason.wechat.domain.message.resp.model.Music;
-import com.jason.wechat.infrastruture.util.DateUtils;
 import com.jason.wechat.infrastruture.util.HttpUtils;
 import com.jason.wechat.infrastruture.util.MessageUtils;
+import com.jason.wechat.infrastruture.util.RespMessageUtils;
 import com.jason.wechat.infrastruture.verify.VerifyToken;
 
 /**
@@ -54,26 +54,21 @@ public class WeChatController extends ControllerSupport {
 	
 	@Autowired
 	private ReqMessageHandler reqMessageHandler ;
-	
 	@Autowired
 	private ChatService chatService ;
-	
 	@Autowired
 	private MusicService musicService ;
-	
 	@Autowired
 	private ArticleService articleService ;
-	
 	@Autowired
 	private TranslateService translateService ;
-	
 	@Autowired
 	private WeatherService weatherService ;
-	
 	@Autowired
 	private LocalService localService ;
+	
     /**
-     * get请求
+     * get请求 验证消息真实性 
      * 
      * @param request
      * @param response
@@ -104,9 +99,13 @@ public class WeChatController extends ControllerSupport {
     }
     
 
+    /**
+     * post 微信唯一重要的入口
+     * @param request
+     * @param response
+     */
     @RequestMapping(value = { "/", "" }, method = RequestMethod.POST)
     public void post(HttpServletRequest request, HttpServletResponse response) {
-    	super.getLogger().info("post controller -------------");
     	try {
 			ServletInputStream in = request.getInputStream();
 			String str = HttpUtils.inputStream2String(in);
@@ -114,7 +113,6 @@ public class WeChatController extends ControllerSupport {
 	    	
 	    	Message message  = reqMessageHandler.reqMessageHandle(str);
 	    	String msgType = message.getMsgType();
-	    	super.getLogger().info("message is : "+message.toString());
 	    	
 	    	String respContent = "请求处理异常，请稍候尝试！";
 	    	// 文本消息
@@ -124,7 +122,7 @@ public class WeChatController extends ControllerSupport {
 	    	}
 	    	//图片消息
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_IMG.toString(), msgType)){	
-	    		ReqImageMessage imageMessage = (ReqImageMessage) message;
+				ReqImageMessage imageMessage = (ReqImageMessage) message;
 	    		respContent = "您发送的是图片消息！";
 	    		
 	    	}
@@ -154,13 +152,10 @@ public class WeChatController extends ControllerSupport {
 	    	//事件推送.
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_EVENT.toString(), msgType)){	
 	    		ReqEventMessage eventMessage = (ReqEventMessage) message;
-	    		
 	    		//事件类型
 	    		String event = eventMessage.getEvent();	
-	    		
 	    		// 订阅
                 if (StringUtils.equalsIgnoreCase(MessageType.EVENT_TYPE_SUBSCRIBE.toString(), event)) {
-                    respContent = "订阅事件";
                     ReqEventMessage reqEventMessage = (ReqEventMessage) message;
                     executeMenu(response, reqEventMessage);
                 }
@@ -169,20 +164,12 @@ public class WeChatController extends ControllerSupport {
                     //取消订阅后用户再收不到公众号发送的消息，因此不需要回复消息
                 }
 	    	}else{
-
 		    	//以上都不执行 ，则最后执行这里
-	            RespTextMessage text = new RespTextMessage();
-		    	text.setContent(respContent);
-		    	text.setCreateTime(DateUtils.currentTime());
-		    	text.setFromUserName(message.getToUserName());
-		    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-		    	text.setToUserName(message.getFromUserName());
-		    	
-				writeXmlResult(response, MessageUtils.textMessageToXml(text));
+		    	RespTextMessage textMessage = RespMessageUtils.writeTextMessage(respContent, message);
+				writeXmlResult(response, MessageUtils.textMessageToXml(textMessage));
 	    	}
-			
 		} catch (Exception e) {
-			super.getLogger().error("post error",e);
+			super.getLogger().error("post error！",e);
 		}
     }
     
@@ -195,16 +182,14 @@ public class WeChatController extends ControllerSupport {
     	String x = locationMessage.getLocation_X();	//纬度
     	String y = locationMessage.getLocation_Y();	//经度
     	List<Article> articles = localService.queryLocal(locationMessage.getFromUserName(),y, x);
-    	
-    	RespNewsMessage newsMessage = new RespNewsMessage();
-		newsMessage.setArticleCount(articles.size());
-		newsMessage.setArticles(articles);
-		newsMessage.setCreateTime(DateUtils.currentTime());
-		newsMessage.setFromUserName(locationMessage.getToUserName());
-		newsMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_NEWS.toString());
-		newsMessage.setToUserName(locationMessage.getFromUserName());
+    	if(Collections3.isNotEmpty(articles)){
+    		RespNewsMessage newsMessage = RespMessageUtils.writeNewsMessage(articles, locationMessage);
+    		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
+    	}else{
+    		RespTextMessage textMessage = RespMessageUtils.writeTextMessage("暂时找不到资料！", locationMessage);
+    		writeXmlResult(response, MessageUtils.textMessageToXml(textMessage));
+    	}
 		
-		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
     }
     /**
      * 接收文本消息类的请求，进行回复
@@ -213,51 +198,41 @@ public class WeChatController extends ControllerSupport {
      */
     private void executeMessageTypeText(ReqTextMessage textMessage,HttpServletResponse response){
     	String content = StringUtils.trim(textMessage.getContent());
-    	if(StringUtils.equalsIgnoreCase(content, "?") || StringUtils.equalsIgnoreCase(content, "？")){
-    		super.getLogger().info("textMessage ? -------------");
-    		executeMenu(response, textMessage);
-    	}else if(StringUtils.equalsIgnoreCase(content, "1")){
-    		super.getLogger().info("textMessage 1 -------------");
-    		executeMusicMenu(response, textMessage);
+    	if(StringUtils.equalsIgnoreCase(content, "0") ||StringUtils.equalsIgnoreCase(content, "?") || StringUtils.equalsIgnoreCase(content, "？")){
+    		executeMenu(response, textMessage);					//? 功能菜单
+    		
+    	}else if(StringUtils.equalsIgnoreCase(content, "1")){	//1 歌曲点播 
+    		executeMusicMenu(response, textMessage);	
+    		
+    	}else if(StringUtils.equalsIgnoreCase(content, "2")){	//2 杰森轻博
+    		executeArticle(response, textMessage);	
 			
-    	}else if(StringUtils.equalsIgnoreCase(content, "2")){
-    		super.getLogger().info("textMessage 2 -------------");
-    		executeArticle(response, textMessage);
+    	}else if(StringUtils.equalsIgnoreCase(content, "3")){	//3 在线翻译
+    		executeTranslateMenu(response, textMessage);	
 			
-    	}else if(StringUtils.equalsIgnoreCase(content, "3")){
-    		super.getLogger().info("textMessage 3 -------------");
-    		executeTranslateMenu(response, textMessage);
-			
-    	}else if(StringUtils.equalsIgnoreCase(content, "4")){
-    		super.getLogger().info("textMessage 4 -------------");
+    	}else if(StringUtils.equalsIgnoreCase(content, "4")){	//4 天气预报
     		executeWeatherMenu(response, textMessage);
 			
-    	}else if(StringUtils.equalsIgnoreCase(content, "5")){
-    		super.getLogger().info("textMessage 5 -------------");
+    	}else if(StringUtils.equalsIgnoreCase(content, "5")){	//5 附近搜索
     		executeLocalMenu(response, textMessage);
 			
-    	}else if(StringUtils.equalsIgnoreCase(content, "6")){
-    		super.getLogger().info("textMessage 6 -------------");
+    	}else if(StringUtils.equalsIgnoreCase(content, "6")){	//6 聊天唠叨
     		executeChatMenu(response, textMessage);
 			
     	}else if(StringUtils.startsWith(content, "歌曲")){
-    		super.getLogger().info("textMessage song -------------");
     		executeMusic(response, textMessage, content);
     		
     	}else if(StringUtils.startsWith(content, "翻译")){
-    		super.getLogger().info("textMessage translate -------------");
     		executeTranslate(response, textMessage, content);
     		
     	}else if(StringUtils.startsWith(content, "天气")){
-    		super.getLogger().info("textMessage translate -------------");
     		executeWeather(response, textMessage, content);
     		
     	}else if(StringUtils.startsWith(content, "附近")){
-    		super.getLogger().info("textMessage local -------------");
     		executeLocal(response, textMessage, content);
     		
     	}else {
-    		super.getLogger().info("textMessage xiaojo -------------");
+    		//如果以上都不执行，那就让小九来吧！
     		executeChat(response, textMessage);
     	}
     }
@@ -270,14 +245,8 @@ public class WeChatController extends ControllerSupport {
 
 		String chatStr = chatService.chat(textMessage.getContent(), textMessage.getFromUserName(), textMessage.getToUserName());
 		
-		RespTextMessage text = new RespTextMessage();
-    	text.setContent(chatStr);
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(textMessage.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(textMessage.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(chatStr, textMessage);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
     }
     /**
      * 执行图文 回复
@@ -286,134 +255,22 @@ public class WeChatController extends ControllerSupport {
      */
     private void executeArticle(HttpServletResponse response, ReqTextMessage textMessage){
 		List<Article> articles = articleService.queryArticle();
-		
-		RespNewsMessage newsMessage = new RespNewsMessage();
-		newsMessage.setArticleCount(articles.size());
-		newsMessage.setArticles(articles);
-		newsMessage.setCreateTime(DateUtils.currentTime());
-		newsMessage.setFromUserName(textMessage.getToUserName());
-		newsMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_NEWS.toString());
-		newsMessage.setToUserName(textMessage.getFromUserName());
-		
-		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
+		if(Collections3.isNotEmpty(articles)){
+			RespNewsMessage newsMessage = RespMessageUtils.writeNewsMessage(articles, textMessage);
+			writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
+    	}else{
+    		RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage("暂时找不到资料！", textMessage);
+    		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+    	}
     }
     /**
-     * 执行菜单 回复
-     * @param response
-     * @param message 请求文本消息类
-     */
-    private void executeMenu(HttpServletResponse response, Message message) {
-    	StringBuffer buffer = new StringBuffer()
-        	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
-        	.append("1 歌曲点播").append("\n")
-        	.append("2 杰森轻博").append("\n")
-        	.append("3 在线翻译").append("\n")
-        	.append("4 天气预报").append("\n")
-        	.append("5 附近搜索").append("\n")
-        	.append("6 聊天唠叨").append("\n\n")
-        	.append("回复“?”显示此帮助菜单");
-    	RespTextMessage text = new RespTextMessage();
-    	text.setContent(buffer.toString());
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(message.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(message.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
-    /**
-     * 执行聊天唠叨 回复
+     * 执行附近搜索 回复
      * @param response
      * @param message
+     * @param content
      */
-    private void executeChatMenu(HttpServletResponse response, ReqTextMessage message) {
-    	StringBuffer buffer = new StringBuffer()
-	    	.append("聊天唠叨操作指南").append("\n\n")
-	    	.append("无聊？来找杰森机器人聊天唠叨一下吧！有问必答").append("\n")
-	    	.append("例如：我顶你、无聊").append("\n\n")
-	    	
-	    	
-	    	.append("回复“?”显示主菜单");
-    	RespTextMessage text = new RespTextMessage();
-    	text.setContent(buffer.toString());
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(message.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(message.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
-    /**
-     * 执行附近搜索菜单 回复
-     * @param response
-     * @param message
-     */
-    private void executeLocalMenu(HttpServletResponse response, ReqTextMessage message) {
-    	StringBuffer buffer = new StringBuffer()
-	    	.append("附近搜索操作指南").append("\n\n")
-	    	.append("1)发送地理位置").append("\n")
-	    	.append("点击窗口底部的“+”按钮，选择“位置”，点击“发送”").append("\n")
-	    	.append("默认搜索周边的“美食”").append("\n\n")
-	    	
-	    	.append("2)指定关键词搜索").append("\n")
-	    	.append("回复：附近+关键词").append("\n")
-	    	.append("例如：附近ATM、附近酒店").append("\n\n")
-	    	
-	    	.append("回复“?”显示主菜单");
-    	RespTextMessage text = new RespTextMessage();
-    	text.setContent(buffer.toString());
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(message.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(message.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
-    
-    /**
-     * 执行天气预报菜单 回复
-     * @param response
-     * @param message 请求文本消息类
-     */
-    private void executeWeatherMenu(HttpServletResponse response, ReqTextMessage message) {
-    	StringBuffer buffer = new StringBuffer()
-	    	.append("天气预报操作指南").append("\n\n")
-	    	.append("回复：天气+城市").append("\n")
-	    	.append("例如：天气北京").append("\n\n")
-	    	.append("回复“?”显示主菜单");
-    	RespTextMessage text = new RespTextMessage();
-    	text.setContent(buffer.toString());
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(message.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(message.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
-    /**
-     * 执行翻译菜单 回复
-     * @param response
-     * @param message 请求文本消息类
-     */
-    private void executeTranslateMenu(HttpServletResponse response, ReqTextMessage message) {
-    	StringBuffer buffer = new StringBuffer()
-	    	.append("在线翻译操作指南").append("\n\n")
-	    	.append("回复：翻译+关键字").append("\n")
-	    	.append("例如：翻译我爱你、翻译I love you").append("\n\n")
-	    	.append("回复“?”显示主菜单");
-    	RespTextMessage text = new RespTextMessage();
-    	text.setContent(buffer.toString());
-    	text.setCreateTime(DateUtils.currentTime());
-    	text.setFromUserName(message.getToUserName());
-    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	text.setToUserName(message.getFromUserName());
-    	
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
-
-    
     private void executeLocal(HttpServletResponse response,ReqTextMessage message,String content){
-    	// 将歌曲2个字及附近后面的+、空格、-等特殊符号去掉  
+    	// 将附近2个字及附近后面的+、空格、-等特殊符号去掉  
         String keyWord = content.replaceAll("^附近[\\+ ~!@#%^-_=]?", "");
         if(StringUtils.isBlank(keyWord)){
         	executeLocalMenu(response, message);
@@ -421,35 +278,22 @@ public class WeChatController extends ControllerSupport {
         	String result = "木有結果！";
         	try {
         		List<Article> articles = localService.queryLocal(message.getFromUserName(), keyWord);
-            	if(articles.size()>0){
-            		RespNewsMessage newsMessage = new RespNewsMessage();
-            		newsMessage.setArticleCount(articles.size());
-            		newsMessage.setArticles(articles);
-            		newsMessage.setCreateTime(DateUtils.currentTime());
-            		newsMessage.setFromUserName(message.getToUserName());
-            		newsMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_NEWS.toString());
-            		newsMessage.setToUserName(message.getFromUserName());
-            		
+            	if(Collections3.isNotEmpty(articles)){
+            		RespNewsMessage newsMessage = RespMessageUtils.writeNewsMessage(articles, message);
             		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
             	}else{
             		result = "木有結果！";
             	}
 			} catch (InvalidCacheLoadException e) {
-				this.getLogger().error("Invalid Cache Load Exception...",e);
 				result = "请先发送地理位置！\n 回复“？”显示主菜单";
+				this.getLogger().error("Invalid Cache Load Exception...",e);
 			}
-			RespTextMessage text = new RespTextMessage();
- 	    	text.setContent(result);
- 	    	text.setCreateTime(DateUtils.currentTime());
- 	    	text.setFromUserName(message.getToUserName());
- 	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
- 	    	text.setToUserName(message.getFromUserName());
- 	    	
- 			writeXmlResult(response, MessageUtils.textMessageToXml(text));
+			RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(result, message);
+ 			writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
         }
     }
     /**
-     * 天气预报 回复
+     * 执行 天气预报 回复
      * @param response
      * @param message
      * @param content
@@ -467,14 +311,8 @@ public class WeChatController extends ControllerSupport {
         	}else{
         		returnStr = str;
         	}
-            RespTextMessage text = new RespTextMessage();
-	    	text.setContent(returnStr);
-	    	text.setCreateTime(DateUtils.currentTime());
-	    	text.setFromUserName(message.getToUserName());
-	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-	    	text.setToUserName(message.getFromUserName());
-	    	
-			writeXmlResult(response, MessageUtils.textMessageToXml(text));
+	    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(returnStr, message);
+			writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
         }
     }
     /**
@@ -496,39 +334,11 @@ public class WeChatController extends ControllerSupport {
         	}else{
         		returnStr = str;
         	}
-            RespTextMessage text = new RespTextMessage();
-	    	text.setContent(returnStr);
-	    	text.setCreateTime(DateUtils.currentTime());
-	    	text.setFromUserName(message.getToUserName());
-	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-	    	text.setToUserName(message.getFromUserName());
-	    	
-			writeXmlResult(response, MessageUtils.textMessageToXml(text));
+	    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(returnStr, message);
+			writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
         }
     }
     
-    /**
-     * 执行音乐菜单 回复
-     * @param response
-     * @param message 请求文本消息类
-     */
-	private void executeMusicMenu(HttpServletResponse response,
-			ReqTextMessage message) {
-		StringBuffer buffer = new StringBuffer()
-			.append("歌曲点播操作指南").append("\n\n")
-			.append("回复：歌曲+歌曲关键字").append("\n")
-			.append("例如：歌曲存在").append("\n\n")
-			.append("回复“?”显示主菜单");
-
-		RespTextMessage text = new RespTextMessage();
-		text.setContent(buffer.toString());
-		text.setCreateTime(DateUtils.currentTime());
-		text.setFromUserName(message.getToUserName());
-		text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-		text.setToUserName(message.getFromUserName());
-
-		writeXmlResult(response, MessageUtils.textMessageToXml(text));
-	}
 	/**
 	 * 执行音乐回复
 	 * @param response
@@ -543,31 +353,21 @@ public class WeChatController extends ControllerSupport {
         }else{
             // 搜索音乐  
             Music music = musicService.searchMusic(keyWord);  
-            // 未搜索到音乐  
             if (null == music) {  
-                RespTextMessage text = new RespTextMessage();
-    	    	text.setContent("对不起，没有找到你想听的歌曲<" + keyWord + ">。");
-    	    	text.setCreateTime(DateUtils.currentTime());
-    	    	text.setFromUserName(message.getToUserName());
-    	    	text.setMsgType(MessageType.RESP_MESSAGE_TYPE_TEXT.toString());
-    	    	text.setToUserName(message.getFromUserName());
-    	    	
-    			writeXmlResult(response, MessageUtils.textMessageToXml(text));
+    	    	//相应找不到歌曲的文本消息
+    	    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage("对不起，没有找到你想听的歌曲<" + keyWord + ">。", message);
+    			writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
             } else {  
-                // 音乐消息  
-            	RespMusicMessage musicMessage = new RespMusicMessage();  
-                musicMessage.setToUserName(message.getFromUserName());  
-                musicMessage.setFromUserName(message.getToUserName());  
-                musicMessage.setCreateTime(DateUtils.currentTime());  
-                musicMessage.setMsgType(MessageType.RESP_MESSAGE_TYPE_MUSIC.toString());  
-                musicMessage.setMusic(music);
-                
+                // 响应音乐消息  
+            	RespMusicMessage musicMessage = RespMessageUtils.writeMusicMessage(music, message);
                 writeXmlResult(response, MessageUtils.musicMessageToXml(musicMessage));
             }  
         }
     }
+	
+	
 	/**
-	 * xml 相应
+	 * xml 响应
 	 * @param response
 	 * @param message
 	 */
@@ -580,6 +380,117 @@ public class WeChatController extends ControllerSupport {
 		} catch (Exception e) {
 			throw ExceptionUtils.toUnchecked(e);
 		}
+	}
+	
+
+	
+	
+	
+	//-------------------------------华丽的分隔     下面的是菜单回复----------------------------------
+	
+	
+	/**
+     * 执行菜单 回复
+     * @param response
+     * @param message 请求文本消息类
+     */
+    private void executeMenu(HttpServletResponse response, Message message) {
+    	StringBuffer buffer = new StringBuffer()
+        	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
+        	.append("1 歌曲点播").append("\n")
+        	.append("2 杰森轻博").append("\n")
+        	.append("3 在线翻译").append("\n")
+        	.append("4 天气预报").append("\n")
+        	.append("5 附近搜索").append("\n")
+        	.append("6 聊天唠叨").append("\n\n")
+        	.append("回复“?”显示此帮助菜单");
+    	
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+    /**
+     * 执行“6 聊天唠叨”菜单回复
+     * @param response
+     * @param message
+     */
+    private void executeChatMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("聊天唠叨操作指南").append("\n\n")
+	    	.append("无聊？来找杰森机器人聊天唠叨一下吧！有问必答").append("\n")
+	    	.append("例如：我顶你、无聊").append("\n\n")
+	    	.append("回复“?”显示主菜单");
+    	
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+
+    /**
+     * 执行“1 歌曲点播”菜单回复
+     * @param response
+     * @param message 请求文本消息类
+     */
+	private void executeMusicMenu(HttpServletResponse response,
+			ReqTextMessage message) {
+		StringBuffer buffer = new StringBuffer()
+			.append("歌曲点播操作指南").append("\n\n")
+			.append("回复：歌曲+歌曲关键字").append("\n")
+			.append("例如：歌曲存在").append("\n\n")
+			.append("回复“?”显示主菜单");
+
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+    /**
+     * 执行“5 附近搜索”菜单回复
+     * @param response
+     * @param message
+     */
+    private void executeLocalMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("附近搜索操作指南").append("\n\n")
+	    	.append("1)发送地理位置").append("\n")
+	    	.append("点击窗口底部的“+”按钮，选择“位置”，点击“发送”").append("\n")
+	    	.append("默认搜索周边的“美食”").append("\n\n")
+	    	
+	    	.append("2)指定关键词搜索").append("\n")
+	    	.append("回复：附近+关键词").append("\n")
+	    	.append("例如：附近ATM、附近酒店").append("\n\n")
+	    	
+	    	.append("回复“?”显示主菜单");
+    	
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+    
+    /**
+     * 执行“4 天气预报”菜单回复
+     * @param response
+     * @param message 请求文本消息类
+     */
+    private void executeWeatherMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("天气预报操作指南").append("\n\n")
+	    	.append("回复：天气+城市").append("\n")
+	    	.append("例如：天气北京").append("\n\n")
+	    	.append("回复“?”显示主菜单");
+
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+    /**
+     * 执行“3 在线翻译”菜单回复
+     * @param response
+     * @param message 请求文本消息类
+     */
+    private void executeTranslateMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("在线翻译操作指南").append("\n\n")
+	    	.append("回复：翻译+关键字").append("\n")
+	    	.append("例如：翻译我爱你、翻译I love you").append("\n\n")
+	    	.append("回复“?”显示主菜单");
+    	
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
 	}
 
 }
