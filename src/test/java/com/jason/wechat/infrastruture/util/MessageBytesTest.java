@@ -17,6 +17,11 @@ public class MessageBytesTest extends AbstractTestBase {
 		System.out.println("GBK length:"+str.getBytes("GBK").length);
 		System.out.println("GB2312 length:"+str.getBytes("GB2312").length);
 		System.out.println("ISO8859-1 length:"+str.getBytes("ISO8859-1").length);
+		
+		System.out.println("自行车1："+emoji(0x1F6B2));
+		System.out.println("自行车2：\ue136");
 	}
-	
+	public static String emoji(int hexEmoji) {  
+        return String.valueOf(Character.toChars(hexEmoji));  
+    }  
 }

@@ -480,13 +480,13 @@ public class WeChatController extends ControllerSupport {
     private void executeMenu(HttpServletResponse response, Message message) {
     	StringBuffer buffer = new StringBuffer()
         	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
-        	.append("1 歌曲点播").append("\n")
+        	.append("1 歌曲点播").append(" ").append("\ue03e").append("\n")
         	.append("2 杰森轻博").append("\n")
         	.append("3 翻译在线").append("\n")
-        	.append("4 天气预报").append("\n")
-        	.append("5 附近搜索").append("\n")
+        	.append("4 天气预报").append(" ").append("\ue04a").append("\n")
+        	.append("5 附近搜索").append(" ").append("\ue114").append("\n")
         	.append("6 聊天唠叨").append("\n")
-        	.append("7 公交查詢").append("\n")
+        	.append("7 公交查詢").append(" ").append("\ue159").append("\n")
         	.append("8 网站导航").append("\n\n")
         	.append("回复“?”显示此帮助菜单");
     	
@@ -596,6 +596,6 @@ public class WeChatController extends ControllerSupport {
     	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
 		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
 	}
-
+    
 }
 

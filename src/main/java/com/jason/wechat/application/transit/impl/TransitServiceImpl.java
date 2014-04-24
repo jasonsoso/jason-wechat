@@ -83,7 +83,7 @@ public class TransitServiceImpl implements TransitService {
             	
             	if(i < count){
             		scheme.append("【").append(name).append("】").append("\n");
-            		scheme.append("沿途站点：").append(stats.replaceAll(";", "→").replaceAll("；", "→"));
+            		scheme.append("\ue159"+" 沿途站点：").append(stats.replaceAll(";", "→").replaceAll("；", "→"));
             		if((count-1) != i){
             			scheme.append("\n\n");
                 	}
@@ -132,14 +132,14 @@ public class TransitServiceImpl implements TransitService {
                 	String lineName = JsonMapper.asText(s, "line_name");	//路线名称
                 	String stats = JsonMapper.asText(s, "stats");	//经途站点
                 	
-                	segSB.append("在“"+startStat+"”站乘").append("【").append(lineName).append("】").append("到“"+endStat+"”站下车,");
+                	segSB.append("\ue231"+" 在“"+startStat+"”站乘").append("【").append(lineName).append("】").append("到“"+endStat+"”站下车,");
                 	segSB.append("途径站点：").append(stats.replaceAll(";", "→").replaceAll("；", "→"));
                 	if((jsize-1) != j){
                 		segSB.append("\n");
                 	}
             	}
             	if(i < count){
-            		scheme.append("方案").append(i+1).append(":");
+            		scheme.append("\ue132"+" 方案").append(i+1).append(":").append("\n");
             		scheme.append(segSB);
             		if((count-1) != i){
             			scheme.append("\n\n");
