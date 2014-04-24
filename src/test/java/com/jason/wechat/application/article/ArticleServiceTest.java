@@ -20,7 +20,7 @@ public class ArticleServiceTest extends AbstractTestBase {
 		
 		List<Article> articles = articleService.queryArticle();
 		int size =  articles.size();
-		System.out.println("size:"+size);
+		System.out.println("文章的总数:"+size);
 		Assert.assertTrue("文章的总数不应该大于5条！", size<= 5);
 		
 		for (Article article:articles) {

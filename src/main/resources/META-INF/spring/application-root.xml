@@ -20,7 +20,6 @@
 		<property name="locations">
 			<list>
 				<!-- 标准配置 -->
-				<value>classpath*:META-INF/config/application.properties</value>
 				<value>classpath*:META-INF/config/framework.properties</value>
 			</list>
 		</property>
@@ -28,13 +27,8 @@
 
 	<!-- 使用annotation 自动注册bean,并保证@Required,@Autowired的属性被注入 -->
 	<context:component-scan base-package="com.jason.wechat" />
-	
-
-
 
 	<aop:aspectj-autoproxy />
 	
-	<!-- Service -->
-    
 	
 </beans>

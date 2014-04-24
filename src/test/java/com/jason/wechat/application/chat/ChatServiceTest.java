@@ -11,7 +11,7 @@ public class ChatServiceTest extends AbstractTestBase {
 	private ChatService chatService;
 	@Test
 	public void testChat() throws Exception {
-		String reply = chatService.chat("澳门天气", "wx370d7ef0ba4885f3", "oIRE1uMiR7o5FniEDiaB7MVT3wA4");
+		String reply = chatService.chat("你好", "wx370d7ef0ba4885f3", "oIRE1uMiR7o5FniEDiaB7MVT3wA4");
 		System.out.println(reply);
 	}
 }

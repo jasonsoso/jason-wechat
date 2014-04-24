@@ -4,6 +4,7 @@ package com.jason.wechat.application.local;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.cache.CacheBuilder;
@@ -46,5 +47,6 @@ public class GuavaCacheTest extends AbstractTestBase {
 		
 		String str3 = cahceBuilder.get("t");
 		System.out.println(str3);
+		Assert.assertEquals("沒有緩存應該為空", str3, "");
 	}
 }
