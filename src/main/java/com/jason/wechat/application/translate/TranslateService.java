@@ -3,7 +3,7 @@ package com.jason.wechat.application.translate;
 
 
 /**
- * 在线翻译
+ * 翻译在线
  * @author Jason
  * @data 2014-4-18 下午03:00:06
  */

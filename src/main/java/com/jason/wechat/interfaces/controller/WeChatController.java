@@ -1,5 +1,6 @@
 package com.jason.wechat.interfaces.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletInputStream;
@@ -23,6 +24,7 @@ import com.jason.wechat.application.local.LocalService;
 import com.jason.wechat.application.message.constant.MessageType;
 import com.jason.wechat.application.message.handle.ReqMessageHandler;
 import com.jason.wechat.application.music.MusicService;
+import com.jason.wechat.application.transit.TransitService;
 import com.jason.wechat.application.translate.TranslateService;
 import com.jason.wechat.application.weather.WeatherService;
 import com.jason.wechat.domain.message.Message;
@@ -66,6 +68,8 @@ public class WeChatController extends ControllerSupport {
 	private WeatherService weatherService ;
 	@Autowired
 	private LocalService localService ;
+	@Autowired
+	private TransitService transitService ;
 	
     /**
      * get请求 验证消息真实性 
@@ -207,7 +211,7 @@ public class WeChatController extends ControllerSupport {
     	}else if(StringUtils.equalsIgnoreCase(content, "2")){	//2 杰森轻博
     		executeArticle(response, textMessage);	
 			
-    	}else if(StringUtils.equalsIgnoreCase(content, "3")){	//3 在线翻译
+    	}else if(StringUtils.equalsIgnoreCase(content, "3")){	//3 翻译在线
     		executeTranslateMenu(response, textMessage);	
 			
     	}else if(StringUtils.equalsIgnoreCase(content, "4")){	//4 天气预报
@@ -218,6 +222,12 @@ public class WeChatController extends ControllerSupport {
 			
     	}else if(StringUtils.equalsIgnoreCase(content, "6")){	//6 聊天唠叨
     		executeChatMenu(response, textMessage);
+			
+    	}else if(StringUtils.equalsIgnoreCase(content, "7")){	//6 公交查询
+    		executeTransitMenu(response, textMessage);
+			
+    	}else if(StringUtils.equalsIgnoreCase(content, "8")){	//8 网站导航
+    		executeSite(response, textMessage);
 			
     	}else if(StringUtils.startsWith(content, "歌曲")){
     		executeMusic(response, textMessage, content);
@@ -230,6 +240,12 @@ public class WeChatController extends ControllerSupport {
     		
     	}else if(StringUtils.startsWith(content, "附近")){
     		executeLocal(response, textMessage, content);
+    		
+    	}else if(StringUtils.startsWith(content, "公交")){
+    		executeTransit(response, textMessage, content);
+    		
+    	}else if(StringUtils.equalsIgnoreCase(content, "网站导航")||StringUtils.equalsIgnoreCase(content, "导航")||StringUtils.equalsIgnoreCase(content, "网站")){
+    		executeSite(response, textMessage);
     		
     	}else {
     		//如果以上都不执行，那就让小九来吧！
@@ -262,6 +278,73 @@ public class WeChatController extends ControllerSupport {
     		RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage("暂时找不到资料！", textMessage);
     		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
     	}
+    }
+    private void executeSite(HttpServletResponse response, ReqTextMessage textMessage){
+		List<Article> articles = new ArrayList<Article>();
+		Article hao123 = new Article();
+		hao123.setDescription("hao123网站导航");
+		hao123.setPicUrl("http://m.hao123.com/static/img/logo/logo1202p.gif");
+		hao123.setTitle("hao123");
+		hao123.setUrl("http://m.hao123.com/");
+		articles.add(hao123);
+		
+		Article google = new Article();
+		google.setDescription("谷歌搜索引擎");
+		google.setPicUrl("https://www.google.com.hk//images/srpr/logo11w.png");
+		google.setTitle("谷歌");
+		google.setUrl("https://www.google.com.hk");
+		articles.add(google);
+		
+		Article baidu = new Article();
+		baidu.setDescription("百度搜索引擎");
+		baidu.setPicUrl("http://m.baidu.com/static/index/l.gif");
+		baidu.setTitle("百度");
+		baidu.setUrl("http://m.baidu.com");
+		articles.add(baidu);
+		
+		Article kugou = new Article();
+		kugou.setDescription("酷狗音乐引擎");
+		kugou.setPicUrl("http://www.kugou.com/favicon.ico");
+		kugou.setTitle("酷狗");
+		kugou.setUrl("http://m.kugou.com/");
+		articles.add(kugou);
+		
+		RespNewsMessage newsMessage = RespMessageUtils.writeNewsMessage(articles, textMessage);
+		writeXmlResult(response, MessageUtils.newsMessageToXml(newsMessage));
+    }
+    
+    /**
+     * 执行附近搜索 回复
+     * @param response
+     * @param message
+     * @param content
+     */
+    private void executeTransit(HttpServletResponse response,ReqTextMessage message,String content){
+    	// 将公交2个字及公交后面的+、空格、-等特殊符号去掉  
+        String keyWord = content.replaceAll("^公交[\\+ !@#%^_=]?", "");
+        this.getLogger().info("content:"+content+" keyWord:"+keyWord);
+        
+        if(StringUtils.isBlank(keyWord)){
+        	executeTransitMenu(response, message);
+        }else{
+        	String result = "木有結果！";
+    		String[] key = StringUtils.split(keyWord, "，|,");
+    		String city = key[0];
+    		String q = key[1];
+    		if(StringUtils.indexOf(q, "-")>0){//如果有 -
+    			String[]  place = StringUtils.split(q, "-");
+    			String from = place[0];
+    			String to = place[1];
+    			this.getLogger().info("city:"+city+" from:"+from+" to:"+to);
+    			result = transitService.queryTransit(city, from, to);
+    		}else{
+    			this.getLogger().info("city:"+city+" q:"+q);
+    			result = transitService.queryTransit(city, q);
+    		}
+    		
+			RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(result, message);
+ 			writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+        }
     }
     /**
      * 执行附近搜索 回复
@@ -316,7 +399,7 @@ public class WeChatController extends ControllerSupport {
         }
     }
     /**
-     * 在线翻译 回复
+     * 翻译在线 回复
      * @param response
      * @param message
      * @param content
@@ -399,11 +482,32 @@ public class WeChatController extends ControllerSupport {
         	.append("您好，我是小杰森，请回复数字选择服务：").append("\n\n")
         	.append("1 歌曲点播").append("\n")
         	.append("2 杰森轻博").append("\n")
-        	.append("3 在线翻译").append("\n")
+        	.append("3 翻译在线").append("\n")
         	.append("4 天气预报").append("\n")
         	.append("5 附近搜索").append("\n")
-        	.append("6 聊天唠叨").append("\n\n")
+        	.append("6 聊天唠叨").append("\n")
+        	.append("7 公交查詢").append("\n")
+        	.append("8 网站导航").append("\n\n")
         	.append("回复“?”显示此帮助菜单");
+    	
+    	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
+		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
+	}
+    /**
+     * 执行“7 公交查詢”菜单回复
+     * @param response
+     * @param message
+     */
+    private void executeTransitMenu(HttpServletResponse response, ReqTextMessage message) {
+    	StringBuffer buffer = new StringBuffer()
+	    	.append("公交查詢操作指南").append("\n\n")
+	    	.append("查詢城市公交路线").append("\n")
+	    	.append("回复：公交城市,路线名称").append("\n")
+	    	.append("例如：公交珠海,11路").append("\n\n")
+	    	.append("查詢城市公交驾乘").append("\n")
+	    	.append("回复：公交城市,起点-终点").append("\n")
+	    	.append("例如：公交珠海,凤凰北-湾仔沙").append("\n\n")
+	    	.append("回复“?”显示主菜单");
     	
     	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
 		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
@@ -478,13 +582,13 @@ public class WeChatController extends ControllerSupport {
 		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
 	}
     /**
-     * 执行“3 在线翻译”菜单回复
+     * 执行“3 翻译在线”菜单回复
      * @param response
      * @param message 请求文本消息类
      */
     private void executeTranslateMenu(HttpServletResponse response, ReqTextMessage message) {
     	StringBuffer buffer = new StringBuffer()
-	    	.append("在线翻译操作指南").append("\n\n")
+	    	.append("翻译在线操作指南").append("\n\n")
 	    	.append("回复：翻译+关键字").append("\n")
 	    	.append("例如：翻译我爱你、翻译I love you").append("\n\n")
 	    	.append("回复“?”显示主菜单");
