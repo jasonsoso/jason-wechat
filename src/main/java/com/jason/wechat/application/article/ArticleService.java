@@ -11,7 +11,6 @@ import com.jason.wechat.domain.message.resp.model.Article;
  * @data 2014-4-17 下午05:03:44
  */
 public interface ArticleService {
-
 	
 	/**
 	 * 获取十条 杰森轻博  文章

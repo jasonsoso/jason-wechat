@@ -28,11 +28,6 @@
 		</init-param>
 	</filter>
 	
-	<filter>
-		<filter-name>hibernateOpenSessionInViewFilter</filter-name>
-		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
-	</filter>
-	
 	<!-- Http Method Filter  -->
 	<filter>
 		<filter-name>hiddenHttpMethodFilter</filter-name>
@@ -45,10 +40,6 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	
-	<filter-mapping>
-		<filter-name>hibernateOpenSessionInViewFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<filter-mapping>
 		<filter-name>hiddenHttpMethodFilter</filter-name>
 		<url-pattern>/*</url-pattern>

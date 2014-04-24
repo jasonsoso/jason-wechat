@@ -19,11 +19,10 @@ public class LocalServiceTest extends AbstractTestBase {
 	@Test
 	public void testQueryLocal() throws Exception {
 		
-		//List<Article> list = localService.queryLocal("tanjianna","113.572273","22.286671");
-		//for (Article article : list) {
-		//	System.out.println("title:"+article.getTitle()+" url:"+article.getUrl());
-		//}
-		//Thread.sleep(60000);
+		List<Article> list = localService.queryLocal("tanjianna","113.572273","22.286671");
+		for (Article article : list) {
+			System.out.println("title:"+article.getTitle()+" url:"+article.getUrl());
+		}
 		
 		List<Article> list2 = localService.queryLocal("tanjianna", "ATM");
 		for (Article article : list2) {
