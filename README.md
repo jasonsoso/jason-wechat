@@ -3,6 +3,7 @@ jason-wechat  --- java版 微信公众平台：杰森机器人
 
 
 ## 克隆与安装 ##
+微信公众平台的申请则省略...  以下步骤为打包：
 `git clone https://github.com/jasonsoso/jason-wechat.git`   
 `cd jason-wechat`   
 `mvn clean compile`   
@@ -10,7 +11,7 @@ jason-wechat  --- java版 微信公众平台：杰森机器人
 `mvn package`   
 
 
-## 微信关注我 ##
+## 微信关注我，有惊喜 ##
 ![二维码 关注我](https://raw.githubusercontent.com/jasonsoso/jason-wechat/master/src/main/webapp/resources/wx/pic.jpeg)
 
 
