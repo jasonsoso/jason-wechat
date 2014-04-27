@@ -19,7 +19,7 @@ jason-wechat  --- java版 微信公众平台：杰森机器人
 `mvn clean compile`   
 `mvn jetty:run`   
 `mvn package`   
-
+call the `http://localhost:8090/` url   
 
 ## 微信关注我，有惊喜 ##
 ![二维码 关注我](https://raw.githubusercontent.com/jasonsoso/jason-wechat/master/src/main/webapp/resources/wx/pic.jpeg)
