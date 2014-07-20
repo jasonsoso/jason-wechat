@@ -126,7 +126,7 @@ public class WeChatController extends ControllerSupport {
 	    	}
 	    	//图片消息
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_IMG.toString(), msgType)){	
-				ReqImageMessage imageMessage = (ReqImageMessage) message;
+				//ReqImageMessage imageMessage = (ReqImageMessage) message;
 	    		respContent = "您发送的是图片消息！";
 	    		
 	    	}
@@ -137,19 +137,19 @@ public class WeChatController extends ControllerSupport {
 	    	}
 	    	//链接消息.
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_LINK.toString(), msgType)){	
-	    		ReqLinkMessage linkMessage = (ReqLinkMessage) message;
+	    		//ReqLinkMessage linkMessage = (ReqLinkMessage) message;
 	    		respContent = "您发送的是链接消息！";
 	    		
 	    	}
 	    	//音频消息.
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_VOICE.toString(), msgType)){	
-	    		ReqVoiceMessage voiceMessage = (ReqVoiceMessage) message;
+	    		//ReqVoiceMessage voiceMessage = (ReqVoiceMessage) message;
 	    		respContent = "您发送的是音频消息！";
 	    		
 	    	}
 	    	//视频消息.
 	    	else if(StringUtils.equalsIgnoreCase(MessageType.REQ_MESSAGE_TYPE_VIDEO.toString(), msgType)){	
-	    		ReqVideoMessage videoMessage = (ReqVideoMessage) message;
+	    		//ReqVideoMessage videoMessage = (ReqVideoMessage) message;
 	    		respContent = "您发送的是视频消息！";
 	    		
 	    	}
