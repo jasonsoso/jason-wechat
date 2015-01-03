@@ -29,12 +29,8 @@ import com.jason.wechat.application.translate.TranslateService;
 import com.jason.wechat.application.weather.WeatherService;
 import com.jason.wechat.domain.message.Message;
 import com.jason.wechat.domain.message.req.ReqEventMessage;
-import com.jason.wechat.domain.message.req.ReqImageMessage;
-import com.jason.wechat.domain.message.req.ReqLinkMessage;
 import com.jason.wechat.domain.message.req.ReqLocationMessage;
 import com.jason.wechat.domain.message.req.ReqTextMessage;
-import com.jason.wechat.domain.message.req.ReqVideoMessage;
-import com.jason.wechat.domain.message.req.ReqVoiceMessage;
 import com.jason.wechat.domain.message.resp.RespMusicMessage;
 import com.jason.wechat.domain.message.resp.RespNewsMessage;
 import com.jason.wechat.domain.message.resp.RespTextMessage;
@@ -230,7 +226,7 @@ public class WeChatController extends ControllerSupport {
     		executeSite(response, textMessage);
 			
     	}else if(StringUtils.startsWith(content, "歌曲")){
-    		executeMusic(response, textMessage, content);
+    		//executeMusic(response, textMessage, content);
     		
     	}else if(StringUtils.startsWith(content, "翻译")){
     		executeTranslate(response, textMessage, content);
@@ -249,7 +245,7 @@ public class WeChatController extends ControllerSupport {
     		
     	}else {
     		//如果以上都不执行，那就让小九来吧！
-    		executeChat(response, textMessage);
+    		//executeChat(response, textMessage);
     	}
     }
     /**
@@ -518,12 +514,14 @@ public class WeChatController extends ControllerSupport {
      * @param message
      */
     private void executeChatMenu(HttpServletResponse response, ReqTextMessage message) {
-    	StringBuffer buffer = new StringBuffer()
-	    	.append("聊天唠叨操作指南").append("\n\n")
-	    	.append("无聊？来找杰森机器人聊天唠叨一下吧！有问必答").append("\n")
-	    	.append("例如：我顶你、无聊").append("\n\n")
-	    	.append("回复“?”显示主菜单");
+    	//StringBuffer buffer = new StringBuffer()
+	    //	.append("聊天唠叨操作指南").append("\n\n")
+	    //	.append("无聊？来找杰森机器人聊天唠叨一下吧！有问必答").append("\n")
+	    //	.append("例如：我顶你、无聊").append("\n\n")
+	    //	.append("回复“?”显示主菜单");
     	
+    	StringBuffer buffer = new StringBuffer()
+    		.append("聊天唠叨 功能有待开发！");
     	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
 		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
 	}
@@ -535,12 +533,14 @@ public class WeChatController extends ControllerSupport {
      */
 	private void executeMusicMenu(HttpServletResponse response,
 			ReqTextMessage message) {
+		//StringBuffer buffer = new StringBuffer()
+		//	.append("歌曲点播操作指南").append("\n\n")
+		//	.append("回复：歌曲+歌曲关键字").append("\n")
+		//	.append("例如：歌曲存在").append("\n\n")
+		//	.append("回复“?”显示主菜单");
 		StringBuffer buffer = new StringBuffer()
-			.append("歌曲点播操作指南").append("\n\n")
-			.append("回复：歌曲+歌曲关键字").append("\n")
-			.append("例如：歌曲存在").append("\n\n")
-			.append("回复“?”显示主菜单");
-
+			.append("歌曲点播 功能有待开发！");
+		
     	RespTextMessage respTextMessage = RespMessageUtils.writeTextMessage(buffer.toString(), message);
 		writeXmlResult(response, MessageUtils.textMessageToXml(respTextMessage));
 	}

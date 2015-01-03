@@ -1,5 +1,7 @@
 package com.jason.wechat.application.translate.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
@@ -13,6 +15,13 @@ import com.jason.wechat.infrastruture.http.HttpRequester;
 import com.jason.wechat.infrastruture.http.HttpRespons;
 
 
+/**
+ * 百度翻译
+ * 请参看：http://developer.baidu.com/wiki/index.php?title=%E5%B8%AE%E5%8A%A9%E6%96%87%E6%A1%A3%E9%A6%96%E9%A1%B5/%E7%99%BE%E5%BA%A6%E7%BF%BB%E8%AF%91/%E7%BF%BB%E8%AF%91API
+ * 
+ * @author Jason
+ * @data 2015-1-2 下午08:31:11
+ */
 @Service
 public class TranslateServiceImpl implements TranslateService {
 	
@@ -21,7 +30,7 @@ public class TranslateServiceImpl implements TranslateService {
 	@Override
 	public String translate(String q) {
 		String url = "http://openapi.baidu.com/public/2.0/bmt/translate?client_id={client_id}&q={q}&from=auto&to=auto";
-		String apiKey = "gxGVqGSAegvkwwVk5qCMAour";
+		String apiKey = "igavT9osFwtoRpZ58hfop3mO";
 		
 		url = url.replace("{client_id}", apiKey);
 		url = url.replace("{q}", EncodeUtils.urlEncode(q));
@@ -50,6 +59,12 @@ public class TranslateServiceImpl implements TranslateService {
             
             String from = JsonMapper.asText(rootNode, "from");
             String to = JsonMapper.asText(rootNode, "to");
+            
+            String error_code = JsonMapper.asText(rootNode, "error_code");
+            String error_msg = JsonMapper.asText(rootNode, "error_msg");
+            if(StringUtils.isNotBlank(error_code)){
+            	logger.error("调用百度翻译有误！error_code："+error_code+" error_msg:"+error_msg);
+            }
             
             JsonNode trans_result = JsonMapper.path(rootNode, "trans_result");
             
